@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090c12">
+  <meta name="description" content="面向电机设计的工程工具箱，汇集铸件重量、转子转动惯量、线规分重、电阻换算与能效查询。">
+  <title>设计工具箱 · HD MOTORS</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='17' fill='%230e1620'/%3E%3Cpath d='M16 20h13v10H16zm19 0h13v24H35zM16 36h13v8H16z' fill='%2372e4ed'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="calculators.css">
+  <script src="particles.js" defer></script>
+  <script src="efficiency-data.js" defer></script>
+  <script src="efficiency-query.js" defer></script>
+  <script src="efficiency.js" defer></script>
+  <script src="calculators.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body class="immersive-workspace">
+  <div class="particle-world" aria-hidden="true"><canvas id="flow-canvas"></canvas><div class="particle-vignette"></div></div>
+  <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="m12 3 9 5v9l-9 5-9-5V8zM3 8l9 5 9-5M12 13v9M7.5 5.5l9 5"/></symbol>
+    <symbol id="i-orbit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="5" transform="rotate(-35 12 12)"/><path d="M8 3c3-1 7 2 9 7s2 10-1 11-7-2-9-7S5 4 8 3Z"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 3C10 2 3 7 4 14c.5 4 5 7 9 4 5-3 5-9 7-15ZM4 21 15 10M9 16v-5M9 16h5"/></symbol>
+    <symbol id="i-wire" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5M5 10c2 3 12 3 14 0M5 15c2 3 12 3 14 0M12 2V0"/></symbol>
+    <symbol id="i-ohm" viewBox="0 0 24 24"><path d="M3 19h6v-3a7 7 0 1 1 6 0v3h6"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h7m5 0h4M4 17h3m5 0h8"/><circle cx="13.5" cy="7" r="2.5"/><circle cx="9.5" cy="17" r="2.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="m13 2-9 12h7l-1 8 10-12h-7z"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8z"/></symbol>
+  </defs></svg>
+  <a class="skip-link" href="#node-casting">跳转到设计工具</a>
+  <header class="workspace-header" data-no-particle-interaction>
+    <a class="brand" href="./" aria-label="设计工具箱首页"><span class="brand-mark"><i></i><i></i><i></i></span><span><strong>HD MOTORS<span>®</span></strong><small>DESIGN STUDIO</small></span></a>
+    <span class="workspace-name">设计工具箱 <i>/</i> TOOLKIT 01</span>
+    <nav class="header-actions" aria-label="辅助工具"><button class="text-action" id="finder-open"><svg><use href="#i-search"/></svg><span>工具索引</span><kbd id="search-shortcut">⌘ K</kbd></button><button class="text-action future-trigger" id="future-open">更多可能<svg><use href="#i-plus"/></svg></button></nav>
+  </header>
+  <main class="workspace" id="tools" aria-labelledby="workspace-title">
+    <div class="hero-visual" id="hero-visual" role="group" aria-label="交互式粒子电机，拖动旋转，点击激发磁场"></div>
+    <svg class="stage-links" id="stage-links" aria-hidden="true"><g data-connection="casting"><path/><circle r="3"/></g><g data-connection="inertia"><path/><circle r="3"/></g><g data-connection="efficiency"><path/><circle r="3"/></g><g data-connection="wire"><path/><circle r="3"/></g><g data-connection="resistance"><path/><circle r="3"/></g></svg>
+    <div class="scene-intro" data-no-particle-interaction><div class="eyebrow"><span></span> ENGINEERING IN FLOW</div><h1 id="workspace-title">让灵感，<br><span>自由运转。</span></h1><p>从一个部件，开启一次思考。<br>触及所需，让计算自然发生。</p></div>
+    <div class="scene-caption" aria-hidden="true"><span>THE ART OF ENGINEERING</span><i></i><span>FIELD / 001</span></div>
+    <nav class="spatial-tools" aria-label="电机设计工具">
+      <button class="tool-node node-casting" id="node-casting" data-tool="casting"><span class="node-overline"><b>01</b> STRUCTURE</span><span class="node-title">铸件重量计算<svg><use href="#i-arrow"/></svg></span><span class="node-detail">机壳 · 材料与质量</span><span class="node-underline"></span></button>
+      <button class="tool-node node-inertia" data-tool="inertia"><span class="node-overline"><b>02</b> DYNAMICS</span><span class="node-title">转子转动惯量计算<svg><use href="#i-arrow"/></svg></span><span class="node-detail">转子 · 旋转与惯性</span><span class="node-underline"></span></button>
+      <button class="tool-node node-efficiency" data-tool="efficiency"><span class="node-overline"><b>03</b> EFFICIENCY</span><span class="node-title">能效查询<svg><use href="#i-arrow"/></svg></span><span class="node-detail">同步电机 · 一级能效参考</span><span class="node-underline"></span></button>
+      <button class="tool-node node-wire" data-tool="wire"><span class="node-overline"><b>04</b> WINDING</span><span class="node-title">线规分重<svg><use href="#i-arrow"/></svg></span><span class="node-detail">绕组 · 双线规重量分配</span><span class="node-underline"></span></button>
+      <button class="tool-node node-resistance" data-tool="resistance"><span class="node-overline"><b>05</b> RESISTANCE</span><span class="node-title">电阻换算<svg><use href="#i-arrow"/></svg></span><span class="node-detail">导体 · 温度与电阻</span><span class="node-underline"></span></button>
+    </nav>
+    <button class="future-node" id="future-node"><span class="future-orbit" aria-hidden="true">+</span><span>下一程，更多可能<small>持续构想中</small></span></button>
+    <div class="scene-controls" data-no-particle-interaction><p id="motor-interaction-hint"><span class="hint-dot"></span>拖动探索 · 点击激发磁场</p><div class="scene-control-actions"><button id="motor-explode" class="scene-action" aria-pressed="false"><svg><use href="#i-box"/></svg><span>解构电机</span></button><i></i><button id="motor-reset" class="scene-icon" aria-label="复位电机视角" title="复位视角"><svg><use href="#i-orbit"/></svg></button><button id="visual-motion" class="scene-icon" aria-label="暂停粒子动画" title="暂停粒子动画" aria-pressed="true"><svg><use href="#i-pause"/></svg></button></div></div>
+    <div class="scene-key" role="group" aria-label="粒子结构图例"><span><i></i>定子</span><span><i></i>绕组</span><span><i></i>转子</span><small>概念视图</small></div>
+    <footer class="workspace-footer"><span>PRECISION, WITHOUT FRICTION.</span><span>专注设计，余下的交给工具。<i>HD / 2026</i></span></footer>
+  </main>
+  <dialog class="quiet-dialog finder-dialog" id="tool-finder" aria-labelledby="finder-title"><div class="dialog-heading"><span class="eyebrow">FIND YOUR FLOW</span><button class="close-button" id="finder-close" aria-label="关闭工具索引"><svg><use href="#i-close"/></svg></button></div><h2 id="finder-title">此刻，你想计算什么？</h2><label class="finder-search"><svg><use href="#i-search"/></svg><input id="tool-search" type="search" placeholder="搜索重量、惯量、线规…" aria-label="搜索工具" autocomplete="off"><kbd>↵</kbd></label><div class="finder-filters" aria-label="工具索引范围"><button data-scope="all" class="active" aria-pressed="true">全部工具</button><button data-scope="favorites" aria-pressed="false">我的收藏<span id="favorite-count">0</span></button><button data-scope="recent" aria-pressed="false">最近使用</button></div><div class="finder-results" id="finder-results"></div><p class="finder-empty" id="finder-empty" hidden></p><div class="finder-footer"><span>↑ ↓ 选择工具 · Enter 打开</span><span>ESC 返回场景</span></div></dialog>
+  <dialog class="quiet-dialog future-dialog" id="future-dialog" aria-labelledby="future-title"><div class="dialog-heading"><span class="eyebrow">THE NEXT CHAPTER</span><button class="close-button" id="future-close" aria-label="关闭待开发功能"><svg><use href="#i-close"/></svg></button></div><h2 id="future-title">还未到来的，也值得期待。</h2><p class="future-description">一些正在酝酿的设计工具。</p><div class="future-line"><span>01</span><div><h3>单位换算</h3><p>长度、质量、转矩与功率。</p></div><small>待开发</small></div><div class="future-line"><span>02</span><div><h3>绕组参数计算</h3><p>匝数、槽满率与绕组方案。</p></div><small>待开发</small></div><div class="future-line"><span>03</span><div><h3>公差配合查询</h3><p>常用尺寸公差与轴孔配合。</p></div><small>待开发</small></div><p class="future-footnote">从真实的设计需求出发。</p></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
